@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="main-header">
+ <div class="logo">
+  <span class="logo-text">Popcorn & Chill</span>
+</div>
+
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search movies...">
+    <button id="search-btn">🔍</button>
+  </div>
+  <div class="user-bar">
+    <span id="greeting"></span>
+    <button id="view-favorites-btn">❤ Favorites</button>
+    <button id="view-watchlist-btn">📌 Watchlist</button>
+    <button id="logout-btn">Logout</button>
+  </div>
+</header>
+
+<main>
+  <section class="genre-section">
+    <h2>Browse by Genre</h2>
+    <div class="genre-list" id="genre-list"></div>
+  </section>
+
+  <section class="carousel-section" id="genre-movies-section" style="display:none;">
+    <h2 id="genre-title"></h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="genre-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+
+  <section class="carousel-section">
+    <h2>Popular</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="popular-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+
+  <section class="carousel-section">
+    <h2>Top Rated</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="toprated-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+
+  <section class="carousel-section">
+    <h2>Trending</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="trending-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+
+  <section class="carousel-section" id="favorites-section" style="display:none;">
+    <h2>My Favorites</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="favorites-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+
+  <section class="carousel-section" id="watchlist-section" style="display:none;">
+    <h2>My Watchlist</h2>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn left">&lt;</button>
+      <div class="movie-carousel" id="watchlist-carousel"></div>
+      <button class="carousel-btn right">&gt;</button>
+    </div>
+  </section>
+</main>
+
+<div id="movie-modal" class="modal">
+  <div class="modal-content">
+    <span id="close-modal">&times;</span>
+    <img id="modal-poster" src="" alt="" />
+    <div class="modal-info">
+      <h2 id="modal-title"></h2>
+      <p id="modal-genres"></p>
+      <p id="modal-rating"></p>
+      <p id="modal-release"></p>
+      <p id="modal-overview"></p>
+      <button id="modal-favorite-btn">❤ Add to Favorites</button>
+      <button id="modal-watchlist-btn" >📌 Add to Watchlist</button>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2025 Movie Recommendation Site</footer>
+<script src="script.js"></script>
+<script>
+const greetingEl = document.getElementById('greeting');
+const logoutBtn = document.getElementById('logout-btn');
+const currentUser = localStorage.getItem('currentUser');
+if (!currentUser) window.location.href = "login.html";
+greetingEl.textContent = "Hello, " + currentUser;
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+  localStorage.removeItem('currentUser');
+  window.location.href = "login.html";
+});
+
+// Favorites Button Toggle
+document.getElementById('view-favorites-btn').addEventListener('click', () => {
+  const favSection = document.getElementById('favorites-section');
+  const watchSection = document.getElementById('watchlist-section');
+  watchSection.style.display = 'none';
+  if (favSection.style.display === 'none' || favSection.style.display === '') {
+    renderFavorites();
+    favSection.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    favSection.style.display = 'none';
+  }
+});
+
+// Watchlist Button Toggle
+document.getElementById('view-watchlist-btn').addEventListener('click', () => {
+  const watchSection = document.getElementById('watchlist-section');
+  const favSection = document.getElementById('favorites-section');
+  favSection.style.display = 'none';
+  if (watchSection.style.display === 'none' || watchSection.style.display === '') {
+    renderWatchlist();
+    watchSection.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    watchSection.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

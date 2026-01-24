@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Watchlist</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="main-header">
+    <h1>My Watchlist</h1>
+    <div class="user-bar">
+        <button id="logout-btn">Logout</button>
+    </div>
+</header>
+
+<div class="carousel-section">
+    <div class="movie-carousel" id="watchlist-carousel"></div>
+</div>
+
+<script>
+const currentUser = localStorage.getItem('currentUser');
+if (!currentUser) { 
+    window.location.href = "login.html"; 
+}
+
+const watchlistCarousel = document.getElementById('watchlist-carousel');
+let watchlists = JSON.parse(localStorage.getItem('watchlist')) || {};
+let watchlistMovies = watchlists[currentUser] || [];
+
+watchlistMovies.forEach(async (movieId) => {
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=e129c3dc381e5d67c606d5bf217d32f8`);
+    const movie = await res.json();
+
+    const card = document.createElement('div');
+    card.classList.add('movie-card');
+    card.innerHTML = `
+        <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+        <div class="movie-overlay">
+            <h3>${movie.title}</h3>
+            <p>Rating: ${movie.vote_average}</p>
+            <button class="remove-watchlist-btn">Remove</button>
+        </div>
+    `;
+    card.querySelector('.remove-watchlist-btn').addEventListener('click', () => {
+        watchlistMovies = watchlistMovies.filter(mid => mid !== movie.id);
+        watchlists[currentUser] = watchlistMovies;
+        localStorage.setItem('watchlist', JSON.stringify(watchlists));
+        renderWatchlist();
+    });
+    watchlistCarousel.appendChild(card);
+});
+
+function renderWatchlist() {
+    watchlistCarousel.innerHTML = "";
+    watchlistMovies.forEach(async (movieId) => {
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=e129c3dc381e5d67c606d5bf217d32f8`);
+        const movie = await res.json();
+
+        const card = document.createElement('div');
+        card.classList.add('movie-card');
+        card.innerHTML = `
+            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+            <div class="movie-overlay">
+                <h3>${movie.title}</h3>
+                <p>Rating: ${movie.vote_average}</p>
+                <button class="remove-watchlist-btn">Remove</button>
+            </div>
+        `;
+        card.querySelector('.remove-watchlist-btn').addEventListener('click', () => {
+            watchlistMovies = watchlistMovies.filter(mid => mid !== movie.id);
+            watchlists[currentUser] = watchlistMovies;
+            localStorage.setItem('watchlist', JSON.stringify(watchlists));
+            renderWatchlist();
+        });
+        watchlistCarousel.appendChild(card);
+    });
+}
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('currentUser');
+    window.location.href = "login.html";
+});
+
+// Initial render
+renderWatchlist();
+</script>
+</body>
+</html>

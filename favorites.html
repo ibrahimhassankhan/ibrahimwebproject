@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favorites</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="main-header">
+    <h1>My Favorites</h1>
+    <div class="user-bar">
+        <button id="logout-btn">Logout</button>
+    </div>
+</header>
+
+<div class="carousel-section">
+    <button class="carousel-btn left">&lt;</button>
+    <div class="movie-carousel" id="favorites-carousel"></div>
+    <button class="carousel-btn right">&gt;</button>
+</div>
+
+<script>
+const API_KEY = "YOUR_API_KEY"; // replace with your TMDB API key
+const currentUser = localStorage.getItem('currentUser');
+if(!currentUser) window.location.href = "login.html";
+
+const favoritesCarousel = document.getElementById('favorites-carousel');
+let allFavorites = JSON.parse(localStorage.getItem('favorites')) || {};
+let favoriteIds = allFavorites[currentUser] || [];
+
+async function loadFavorites() {
+    favoritesCarousel.innerHTML = "";
+    for(const movieId of favoriteIds) {
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=en-US`);
+        const movie = await res.json();
+
+        const card = document.createElement('div');
+        card.classList.add('movie-card');
+        card.innerHTML = `
+            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+            <div class="movie-overlay">
+                <h3>${movie.title}</h3>
+                <p>Rating: ${movie.vote_average}</p>
+                <button class="remove-fav-btn">Remove</button>
+            </div>
+        `;
+        card.querySelector('.remove-fav-btn').addEventListener('click', () => {
+            favoriteIds = favoriteIds.filter(id => id !== movie.id);
+            allFavorites[currentUser] = favoriteIds;
+            localStorage.setItem('favorites', JSON.stringify(allFavorites));
+            loadFavorites();
+        });
+        favoritesCarousel.appendChild(card);
+    }
+}
+
+// Carousel scroll
+function initCarousel() {
+    const wrapper = favoritesCarousel.parentElement;
+    const btnLeft = wrapper.querySelector('.carousel-btn.left');
+    const btnRight = wrapper.querySelector('.carousel-btn.right');
+    const cardWidth = favoritesCarousel.querySelector('.movie-card')?.offsetWidth + 20 || 300;
+
+    btnLeft.addEventListener('click', () => favoritesCarousel.scrollBy({ left:-cardWidth*2, behavior:'smooth' }));
+    btnRight.addEventListener('click', () => favoritesCarousel.scrollBy({ left:cardWidth*2, behavior:'smooth' }));
+}
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+    localStorage.removeItem('currentUser');
+    window.location.href = "login.html";
+});
+
+// Initialize
+loadFavorites();
+initCarousel();
+</script>
+</body>
+</html>
